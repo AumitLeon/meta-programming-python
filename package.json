@@ -2,7 +2,6 @@
   "name": "meta-programming-python",
   "version": "0.1.0",
   "description": "Slides and code for a talk on python metaprogramming",
-  "main": "index.js",
   "scripts": {
     "install:deps": "brew bundle && poetry install"
   },
