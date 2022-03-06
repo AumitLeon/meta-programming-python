@@ -1,0 +1,24 @@
+{
+  "name": "meta-programming-python",
+  "version": "0.1.0",
+  "description": "Slides and code for a talk on python metaprogramming",
+  "main": "index.js",
+  "scripts": {
+    "install:deps": "brew bundle && poetry install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AumitLeon/meta-programming-python.git"
+  },
+  "keywords": [
+    "metaprogramming",
+    "python",
+    "metaclasses"
+  ],
+  "author": "Aumit Leon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AumitLeon/meta-programming-python/issues"
+  },
+  "homepage": "https://github.com/AumitLeon/meta-programming-python#readme"
+}

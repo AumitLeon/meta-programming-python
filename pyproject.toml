@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "meta-programming-python"
+version = "0.1.0"
+description = "Slides and code for a talk on python metaprogramming"
+authors = ["Aumit Leon <aumitleon@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
