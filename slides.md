@@ -27,6 +27,7 @@ print(type(int))
 print(type(str))
 print(type(float))
 print(type(dict))
+print(type(list))
 ```
 
 ```python
