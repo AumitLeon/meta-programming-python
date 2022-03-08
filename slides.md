@@ -223,8 +223,6 @@ You could have retrun a custom implementation of `dict` that cares about orderin
 ## The class body is executed
 
 
-
-
 ---
 
 ## The class object is created
