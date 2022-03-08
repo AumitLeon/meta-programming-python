@@ -1,6 +1,10 @@
 # Metaprogramming in Python
 The magical world of python internals
 
+> “Metaclasses are deeper magic than 99% of users should ever worry about. If you wonder whether you need them, you don’t (the people who actually need them know with certainty that they need them, and don’t need an explanation about why).”
+
+-- Tim Peters
+
 ---
 
 ## Python is a dynamic language
@@ -62,63 +66,179 @@ print(type(type))
 
 The default metaclass is `type`. 
 
+As we've seen, `type` can tell you the type of an object, but it can also be used to create classes!
+
 ```python
+MyClass = type('MyClass', (), {'__init__': lambda x: print('An instance of MyClass has been created!')})
+print(MyClass)
 
+class MyOtherClass:
+    def __init__(self):
+        print('An instance of MyOtherClass has been created!')
+
+print(MyOtherClass)
+
+
+x = MyClass()
+y = MyOtherClass()
 ```
 
-<!-- ```python
-import builtins
-
-builtin_types = [getattr(builtins, d) for d in dir(builtins) if isinstance(getattr(builtins, d), type)]
+In some ways, the `class Name...` syntax is syntactic sugar over the first method of creating classes. 
 
 
-``` -->
+**But how do we use Metaclasses in python?**
+
+---
+## Exploring Metaclasses in Python
+
+Metaclasses are the class of a a class, and they inherit from `type`. 
+
+```python
+class MyMetaClass(type):
+    pass
+
+class MyClass(metaclass=MyMetaClass):
+    pass
+
+my_class_instance = MyClass()
+
+print(type(MyClass))
+print(MyClass.__class__)
+print(MyClass.__mro__)
+```
+
+### So what's actually happening?
+
+1. The first thing that happens is that method resolution order (MRO) is resolved.
+
+2. The appropriate metaclass is determined.
+
+3. The class namespace is prepared.
+
+4. The class body is executed.
+
+5. The class object is created.
+
+
+---
+## Resolving Method Resolution Order
+This determines the order in which method names are resolved.
+
+Specifically, which class's method should be used for what? 
+
+Take the following code sample:
+
+```python
+class MyMetaClass(type):
+    pass
+
+class MyClass(metaclass=MyMetaClass):
+    def helper_function(self):
+        print('Calling from MyClass!')
+
+class MySubClass(MyClass):
+    def helper_function(self):
+        print('Calling from MySubClass')
+
+class MySubSubClass(MySubClass):
+    pass
+
+instance = MySubSubClass()
+instance.helper_function()
+
+print(MySubSubClass.__mro__)
+```
+
+---
+
+## Determining the appropriate metaclass
+
+### If no metaclass is given, just use `type` as the metaclass. (Remember, `type` is the default metaclass!)
+```python
+class MyCustomClass:
+    pass
+
+print(MyCustomClass.__class__)
+```
+
+### If an explicit metaclass is given and it is not an instance of `type`, then it is used directly as the metaclass.
+
+In this case, we're passing a callable as the metaclass.
+
+```python
+class MyMetaClass(type):
+    pass
+
+def my_meta_callable(name, bases, namespace):
+    return MyMetaClass(name, bases, namespace)
+
+class MyCustomClass(metaclass=my_meta_callable):
+    pass
+
+class MyCustomDerivedClass(MyCustomClass):
+    pass
+
+print(type(my_meta_callable))
+
+print(MyCustomClass.__class__)
+print(type(MyCustomClass))
+
+print(MyCustomDerivedClass.__class__)
+print(type(MyCustomDerivedClass))
+```
+
+
+### If an instance of `type` is given as the explicit metaclass, or bases are defined, then the most derived metaclass is used.
+
+All classes in python inherit from object. If you look at the MRO for any class you create, you'll see that the last entry is `object`.
+
+```python
+class MyCustomClass:
+    pass
+
+print(MyCustomClass.__mro__)
+
+print(type(object))
+
+print(isinstance(object, type))
+```
+
+`object` is an instance of type! 
+
+All regular classes (i.e., non-metaclasses), are instances of `type`, which means if you try to specify a regular class as a metaclass, it will ignore that and try to use the "most dereived metaclass" -- if none of the base classes define a metaclass, then the most derived metaclass will be the default metaclass -- `type`!
+
+
+---
+
+## Preparing the class namespace
+
+The class namespace is prepared via `__prepare__()`
+
+The `__prepare__()` function returns a dictionary-like object to that contains all of the class's data. 
+
+It doesn't necessarily need to be a dicitonary, but it could be. 
+
+You could have retrun a custom implementation of `dict` that cares about ordering or has some other property.
+
+## The class body is executed
 
 
 
 
 ---
 
-## Everything happens in your terminal
-Create slides and present them without ever leaving your terminal.
+## The class object is created
 
 ---
 
-## Code execution
-```go
-package main
-
-import "fmt"
-
-func main() {
-  fmt.Println("Execute code directly inside the slides")
-}
-```
-
-You can execute code inside your slides by pressing `<C-e>`,
-the output of your command will be displayed at the end of the current slide.
+## Descriptors
 
 ---
 
-## Pre-process slides
+## Conclusion
 
-You can add a code block with three tildes (`~`) and write a command to run *before* displaying
-the slides, the text inside the code block will be passed as `stdin` to the command
-and the code block will be replaced with the `stdout` of the command.
+- Metaprogramming in Python is very powerful
+- With great power, comes great responsibility
 
-~~~graph-easy --as=boxart
-[ A ] - to -> [ B ]
-~~~
 
-The above will be pre-processed to look like:
-
-┌───┐  to   ┌───┐
-│ A │ ────> │ B │
-└───┘       └───┘
-
-For security reasons, you must pass a file that has execution permissions
-for the slides to be pre-processed. You can use `chmod` to add these permissions.
-
-```bash
-chmod +x file.md
-```
+---
